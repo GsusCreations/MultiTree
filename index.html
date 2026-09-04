@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hub de Enlaces Multi-Perfil | LinkHub.pro</title>
+  <meta name="description" content="Aplicación web responsive tipo Linktree multi-perfil client-side en un único archivo HTML con diseño Sleek Interface." />
+  
+  <!-- Open Graph / Redes Sociales -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Hub de Enlaces Multi-Perfil" />
+  <meta property="og:description" content="Plataforma de enlaces multi-perfil estática y personalizable sin backend con estética Sleek Interface." />
+  
+  <!-- Google Fonts: Plus Jakarta Sans para máxima legibilidad tipográfica y estética limpia -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS vía CDN Oficial -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              bg: '#f8fafc',
+              card: '#ffffff',
+              primary: '#6366f1',
+              'primary-hover': '#4f46e5',
+              text: '#1e293b',
+              muted: '#64748b',
+              border: '#e2e8f0'
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+          },
+          boxShadow: {
+            'sleek': '0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03)',
+            'card': '0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -2px rgba(0, 0, 0, 0.02)',
+            'toast': '0 10px 15px -3px rgba(0, 0, 0, 0.15), 0 4px 6px -4px rgba(0, 0, 0, 0.1)'
+          },
+          keyframes: {
+            fadeInUp: {
+              '0%': { opacity: '0', transform: 'translateY(10px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            toastIn: {
+              '0%': { opacity: '0', transform: 'translate(-50%, 14px) scale(0.96)' },
+              '100%': { opacity: '1', transform: 'translate(-50%, 0) scale(1)' },
+            }
+          },
+          animation: {
+            fadeInUp: 'fadeInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+            toastIn: 'toastIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Variables de diseño del tema Sleek Interface */
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --primary: #6366f1;
+      --text: #1e293b;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --emerald: #10b981;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-tap-highlight-color: transparent;
+      height: 100%;
+    }
+
+    body {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+  </style>
+</head>
+
+<body class="bg-[#f8fafc] text-[#1e293b] font-sans selection:bg-indigo-500/20 selection:text-indigo-700">
+
+  <!-- TOP NAVIGATION BAR (Sleek Interface Header) -->
+  <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-[#e2e8f0] h-16 flex items-center justify-between px-4 sm:px-8 shadow-xs">
+    <div class="flex items-center space-x-3 cursor-pointer" onclick="navigateToProfile('')">
+      <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-extrabold text-base shadow-sm shadow-indigo-500/20">
+        L
+      </div>
+      <div class="flex items-baseline space-x-1.5">
+        <span class="font-extrabold text-lg sm:text-xl tracking-tight text-slate-900">LinkHub</span>
+        <span class="text-indigo-600 font-extrabold text-sm sm:text-base">.pro</span>
+        <span class="hidden sm:inline-block text-[10px] font-bold text-slate-400 uppercase tracking-wider bg-slate-100 px-2 py-0.5 rounded-full ml-1.5 border border-slate-200">
+          Client-Side
+        </span>
+      </div>
+    </div>
+
+    <!-- Acciones de navegación superior -->
+    <div class="flex items-center space-x-2 sm:space-x-3">
+      <button 
+        onclick="toggleDockHelp()" 
+        class="px-3 py-1.5 rounded-lg border border-[#e2e8f0] bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs sm:text-sm flex items-center gap-1.5 transition-colors shadow-2xs"
+        title="Parámetros de URL y enrutamiento"
+      >
+        <svg class="w-4 h-4 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        <span class="hidden xs:inline">Enrutamiento</span>
+      </button>
+
+      <button 
+        onclick="shareCurrentProfile()" 
+        class="px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs sm:text-sm flex items-center gap-1.5 transition-all shadow-sm shadow-indigo-600/20 active:scale-95"
+        title="Compartir enlace actual"
+      >
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="18" cy="5" r="3"></circle>
+          <circle cx="6" cy="12" r="3"></circle>
+          <circle cx="18" cy="19" r="3"></circle>
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+        </svg>
+        <span>Compartir Hub</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- CONTENEDOR PRINCIPAL DINÁMICO (Layout Central con espaciado Sleek) -->
+  <main id="app-root" class="flex-1 w-full max-w-6xl mx-auto px-4 py-8 sm:py-10">
+    <!-- El contenido se inyecta dinámicamente mediante Vanilla JS -->
+  </main>
+
+  <!-- NOTIFICACIÓN TOAST FLOTANTE (Sleek Toast) -->
+  <div id="toast" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-opacity duration-300">
+    <div class="bg-[#1e293b] text-white px-5 py-3 rounded-xl shadow-toast border border-slate-700/60 flex items-center space-x-3 text-sm font-medium">
+      <span class="w-2 h-2 rounded-full bg-[#10b981] animate-ping shrink-0"></span>
+      <span id="toast-message">¡Enlace copiado al portapapeles!</span>
+      <svg class="w-4 h-4 text-[#10b981] shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+      </svg>
+    </div>
+  </div>
+
+  <!-- BARRA FLOTANTE DE ACCESO RÁPIDO / PROBADOR LOCAL (Sleek Dock) -->
+  <aside id="quick-dock" aria-label="Navegación de prueba rápida" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-auto max-w-[95vw] transition-all duration-300">
+    <div class="bg-white/95 backdrop-blur-md border border-[#e2e8f0] shadow-sleek rounded-full p-1.5 flex items-center gap-1 sm:gap-1.5 text-xs font-semibold">
+      
+      <!-- Botón Home / Hub -->
+      <button onclick="navigateToProfile('')" id="dock-btn-hub" class="px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+        <span class="hidden xs:inline">Hub</span>
+      </button>
+
+      <span class="w-px h-4 bg-slate-200"></span>
+
+      <!-- Botón Perfil Guitarra -->
+      <button onclick="navigateToProfile('guitarra')" id="dock-btn-guitarra" class="px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+        <span>🎸</span>
+        <span class="hidden sm:inline">Guitarra</span>
+      </button>
+
+      <!-- Botón Perfil Trabajo -->
+      <button onclick="navigateToProfile('trabajo')" id="dock-btn-trabajo" class="px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+        <span>💼</span>
+        <span class="hidden sm:inline">Trabajo</span>
+      </button>
+
+      <!-- Botón Perfil Personal -->
+      <button onclick="navigateToProfile('personal')" id="dock-btn-personal" class="px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+        <span>☕</span>
+        <span class="hidden sm:inline">Personal</span>
+      </button>
+
+      <span class="w-px h-4 bg-slate-200"></span>
+
+      <!-- Indicador / Ayuda rápida -->
+      <button onclick="toggleDockHelp()" title="Información sobre los parámetros de URL (?p=)" class="w-7 h-7 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex items-center justify-center transition-colors">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MODAL DE AYUDA / INFORMACIÓN DE ENRUTAMIENTO -->
+  <div id="help-modal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white border border-[#e2e8f0] rounded-3xl max-w-md w-full p-6 text-slate-800 shadow-sleek animate-fadeInUp">
+      <div class="flex items-center justify-between pb-3 border-b border-[#e2e8f0]">
+        <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
+          <span>Enrutamiento Client-Side</span>
+        </h3>
+        <button onclick="toggleDockHelp()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">✕</button>
+      </div>
+      <div class="py-4 space-y-3 text-sm text-slate-600 leading-relaxed">
+        <p>Esta aplicación funciona <strong>100% en el navegador</strong> mediante el parámetro <code class="text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded font-mono text-xs">?p=</code> en la URL:</p>
+        <div class="space-y-1.5 bg-[#f8fafc] p-3 rounded-2xl border border-[#e2e8f0] font-mono text-xs text-slate-700">
+          <div>• <span class="text-amber-600 font-bold">?p=guitarra</span> → Perfil Academia de Guitarra</div>
+          <div>• <span class="text-indigo-600 font-bold">?p=trabajo</span> → Perfil Profesional & Código</div>
+          <div>• <span class="text-emerald-600 font-bold">?p=personal</span> → Perfil Personal & Blog</div>
+          <div>• <span class="text-slate-500 font-bold">(sin parámetro)</span> → Selector de Hub Principal</div>
+        </div>
+        <p class="text-xs text-slate-500">Sin backend ni base de datos. Lista para ser alojada en GitHub Pages o cualquier servidor de archivos estáticos.</p>
+      </div>
+      <button onclick="toggleDockHelp()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-semibold transition-colors shadow-sm shadow-indigo-500/20">
+        Entendido
+      </button>
+    </div>
+  </div>
+
+  <!-- LÓGICA PRINCIPAL VANILLA JAVASCRIPT (ES6+) -->
+  <script>
+    /**
+     * =========================================================================
+     * 1. ESTRUCTURA DE DATOS CENTRALIZADA (Multi-Perfil)
+     * =========================================================================
+     * Configuración modular de perfiles bajo el diseño Sleek Interface.
+     */
+    const profilesData = {
+      guitarra: {
+        id: "guitarra",
+        nombre: "Mario Guitar Studio",
+        titulo: "Academia & Clases de Guitarra",
+        bio: "Aprende guitarra acústica y eléctrica desde cero. Clases personalizadas online y presenciales con metodología práctica y dinámica.",
+        avatarUrl: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&auto=format&fit=crop&q=80",
+        badge: "🎸 Clases Abiertas 2025",
+        tema: {
+          tag: "guitarra",
+          accentColor: "text-amber-600",
+          accentBg: "bg-amber-50",
+          accentBorder: "border-amber-200",
+          badgeBg: "bg-amber-50 text-amber-700 border-amber-200",
+          linkHoverBorder: "hover:border-amber-400",
+          avatarRing: "ring-amber-400/50",
+          featuredBorder: "border-amber-400 bg-amber-50/40",
+          featuredBadge: "bg-amber-100 text-amber-800 border-amber-300",
+          dockActive: "bg-amber-500 text-white shadow-md shadow-amber-500/25"
+        },
+        links: [
+          {
+            titulo: "Inscripción: Reserva tu Clase Diagnóstica",
+            descripcion: "Sesión 1 a 1 de 30 min sin costo para evaluar tu nivel y definir objetivos",
+            url: "https://forms.google.com",
+            icono: "calendar",
+            destacado: true
+          },
+          {
+            titulo: "Canal de YouTube (Tutoriales y Covers)",
+            descripcion: "Más de 60 lecciones gratuitas sobre acordes, escalas y digitación",
+            url: "https://youtube.com",
+            icono: "youtube",
+            destacado: false
+          },
+          {
+            titulo: "Consultas Directas por WhatsApp",
+            descripcion: "Horarios disponibles, tarifas mensuales y material complementario",
+            url: "https://wa.me",
+            icono: "whatsapp",
+            destacado: false
+          },
+          {
+            titulo: "Web Oficial & Descarga de Tablaturas",
+            descripcion: "E-books de acordes en PDF y pistas de acompañamiento en audio",
+            url: "https://example.com",
+            icono: "globe",
+            destacado: false
+          }
+        ],
+        redes: [
+          { red: "youtube", url: "https://youtube.com", label: "YouTube" },
+          { red: "instagram", url: "https://instagram.com", label: "Instagram" },
+          { red: "whatsapp", url: "https://wa.me", label: "WhatsApp" },
+          { red: "spotify", url: "https://spotify.com", label: "Spotify" }
+        ]
+      },
+
+      trabajo: {
+        id: "trabajo",
+        nombre: "Alex Morales",
+        titulo: "Mi Portafolio Profesional",
+        bio: "Desarrollador de Software Frontend & Creador Digital. Especializado en interfaces limpias, alto rendimiento y arquitecturas web estáticas.",
+        avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",
+        badge: "💼 Disponible para Proyectos",
+        tema: {
+          tag: "trabajo",
+          accentColor: "text-indigo-600",
+          accentBg: "bg-indigo-50",
+          accentBorder: "border-indigo-200",
+          badgeBg: "bg-indigo-50 text-indigo-700 border-indigo-200",
+          linkHoverBorder: "hover:border-indigo-500",
+          avatarRing: "ring-indigo-400/50",
+          featuredBorder: "border-indigo-400 bg-indigo-50/40",
+          featuredBadge: "bg-indigo-100 text-indigo-800 border-indigo-300",
+          dockActive: "bg-indigo-600 text-white shadow-md shadow-indigo-500/25"
+        },
+        links: [
+          {
+            titulo: "Portafolio Web & Casos de Estudio",
+            descripcion: "Explora mis últimos proyectos desarrollados en React, TypeScript y Tailwind",
+            url: "https://example.com/portfolio",
+            icono: "briefcase",
+            destacado: true
+          },
+          {
+            titulo: "Perfil Profesional en LinkedIn",
+            descripcion: "Experiencia laboral, recomendaciones y publicaciones técnicas",
+            url: "https://linkedin.com",
+            icono: "linkedin",
+            destacado: false
+          },
+          {
+            titulo: "Repositorio de Código en GitHub",
+            descripcion: "Contribuciones open-source, snippets y herramientas web",
+            url: "https://github.com",
+            icono: "github",
+            destacado: false
+          },
+          {
+            titulo: "Descargar Curriculum Vitae (PDF)",
+            descripcion: "Historial completo de trayectoria técnica y certificaciones",
+            url: "https://example.com/cv.pdf",
+            icono: "file-text",
+            destacado: false
+          }
+        ],
+        redes: [
+          { red: "github", url: "https://github.com", label: "GitHub" },
+          { red: "linkedin", url: "https://linkedin.com", label: "LinkedIn" },
+          { red: "twitter", url: "https://x.com", label: "X / Twitter" },
+          { red: "mail", url: "mailto:alex@example.com", label: "Correo" }
+        ]
+      },
+
+      personal: {
+        id: "personal",
+        nombre: "Alex M.",
+        titulo: "Bitácora & Espacio Personal",
+        bio: "Fotografía analógica en 35mm, notas sobre minimalismo digital y selección semanal de música instrumental para concentrarse.",
+        avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80",
+        badge: "✨ Notas & Pasatiempos",
+        tema: {
+          tag: "personal",
+          accentColor: "text-emerald-600",
+          accentBg: "bg-emerald-50",
+          accentBorder: "border-emerald-200",
+          badgeBg: "bg-emerald-50 text-emerald-700 border-emerald-200",
+          linkHoverBorder: "hover:border-emerald-500",
+          avatarRing: "ring-emerald-400/50",
+          featuredBorder: "border-emerald-400 bg-emerald-50/40",
+          featuredBadge: "bg-emerald-100 text-emerald-800 border-emerald-300",
+          dockActive: "bg-emerald-600 text-white shadow-md shadow-emerald-500/25"
+        },
+        links: [
+          {
+            titulo: "Blog & Ensayos Semanales",
+            descripcion: "Artículos sobre tecnología, diseño sereno y hábitos sostenibles",
+            url: "https://example.com/blog",
+            icono: "book-open",
+            destacado: true
+          },
+          {
+            titulo: "Playlist Curada en Spotify",
+            descripcion: "Música ambiental, jazz moderno y lo-fi para sesiones de enfoque",
+            url: "https://spotify.com",
+            icono: "spotify",
+            destacado: false
+          },
+          {
+            titulo: "Galería de Fotografía (35mm)",
+            descripcion: "Selección de capturas urbanas y viajes en película analógica",
+            url: "https://vsco.co",
+            icono: "camera",
+            destacado: false
+          },
+          {
+            titulo: "Lecturas 2025 en Goodreads",
+            descripcion: "Libros favoritos del año con notas breves y valoraciones",
+            url: "https://goodreads.com",
+            icono: "bookmark",
+            destacado: false
+          }
+        ],
+        redes: [
+          { red: "instagram", url: "https://instagram.com", label: "Instagram" },
+          { red: "spotify", url: "https://spotify.com", label: "Spotify" },
+          { red: "twitter", url: "https://x.com", label: "X / Twitter" },
+          { red: "mail", url: "mailto:alex@example.com", label: "Correo" }
+        ]
+      }
+    };
+
+    /**
+     * =========================================================================
+     * 2. REPOSITORIO DE ICONOS SVG VECTORIALES
+     * =========================================================================
+     */
+    function getIconSvg(iconName, className = "w-5 h-5") {
+      const icons = {
+        calendar: `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>`,
+        youtube: `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon></svg>`,
+        whatsapp: `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>`,
+        globe: `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>`,
+        briefcase: `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>`,
+        linkedin: `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>`,
+        github: `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>`,
+        "file-text": `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>`,
+        "book-open": `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>`,
+        spotify: `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 11.5c2.5-1 6-1 8 .5"></path><path d="M7 14.5c3-1.2 7-1 9.5.5"></path><path d="M9 9c2-1 5.5-1 7 .5"></path></svg>`,
+        camera: `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>`,
+        bookmark: `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>`,
+        instagram: `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>`,
+        twitter: `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l11.733 16h4.267l-11.733 -16z"></path><path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772"></path></svg>`,
+        mail: `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>`,
+        share: `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>`,
+        chevronRight: `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>`,
+        arrowLeft: `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>`
+      };
+
+      return icons[iconName] || icons.globe;
+    }
+
+    /**
+     * =========================================================================
+     * 3. ENRUTAMIENTO EN EL CLIENTE (Client-Side Routing)
+     * =========================================================================
+     */
+    function getProfileParam() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const param = urlParams.get('p');
+      return param ? param.trim().toLowerCase() : null;
+    }
+
+    function navigateToProfile(profileSlug) {
+      const url = new URL(window.location.href);
+      if (profileSlug) {
+        url.searchParams.set('p', profileSlug);
+      } else {
+        url.searchParams.delete('p');
+      }
+
+      window.history.pushState({ profile: profileSlug }, '', url.toString());
+      renderApp();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    window.addEventListener('popstate', () => {
+      renderApp();
+    });
+
+    /**
+     * =========================================================================
+     * 4. RENDERIZADORES DE VISTA (Sleek Interface Style)
+     * =========================================================================
+     */
+
+    // VISTA 1: Selector visual / Hub Principal (cuando no hay ?p=)
+    function renderHubView() {
+      const profileKeys = Object.keys(profilesData);
+
+      return `
+        <div class="max-w-5xl mx-auto animate-fadeInUp">
+          
+          <!-- Encabezado del Hub -->
+          <div class="text-center mb-10">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200/80 mb-3 shadow-2xs">
+              <span class="w-1.5 h-1.5 rounded-full bg-indigo-600"></span>
+              Sleek Multi-Profile Hub
+            </span>
+            <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 mb-3">
+              Directorio de Perfiles & Enlaces
+            </h1>
+            <p class="text-slate-500 text-sm sm:text-base max-w-md mx-auto leading-relaxed">
+              Selecciona cualquiera de los perfiles disponibles para previsualizar su hub de enlaces interactivo.
+            </p>
+          </div>
+
+          <!-- Estructura Bento / Grid: Lista de Perfiles + Panel de Estadísticas (Sleek Interface Layout) -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
+            
+            <!-- Columna Principal: Tarjetas de Perfil -->
+            <div class="lg:col-span-2 space-y-3.5">
+              <div class="text-xs uppercase tracking-wider font-bold text-slate-400 mb-1 px-1">
+                Perfiles Activos
+              </div>
+
+              ${profileKeys.map(key => {
+                const p = profilesData[key];
+                const t = p.tema;
+                const iconLetter = p.id === 'guitarra' ? 'G' : p.id === 'trabajo' ? 'A' : 'P';
+                const iconColor = p.id === 'guitarra' ? 'bg-amber-500 text-white' : p.id === 'trabajo' ? 'bg-indigo-600 text-white' : 'bg-emerald-600 text-white';
+
+                return `
+                  <div 
+                    onclick="navigateToProfile('${p.id}')" 
+                    role="button" 
+                    tabindex="0" 
+                    class="group bg-white border border-[#e2e8f0] hover:border-indigo-400 hover:shadow-card p-4 sm:p-5 rounded-2xl cursor-pointer transition-all duration-200 flex items-center justify-between"
+                  >
+                    <div class="flex items-center space-x-4 min-w-0">
+                      <!-- Avatar con insignia -->
+                      <div class="relative shrink-0">
+                        <img 
+                          src="${p.avatarUrl}" 
+                          alt="${p.nombre}" 
+                          class="w-14 h-14 rounded-2xl object-cover border border-slate-200 group-hover:scale-105 transition-transform duration-200 shadow-2xs"
+                          loading="lazy"
+                          onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&auto=format&fit=crop&q=80'"
+                        />
+                        <span class="absolute -bottom-1 -right-1 w-5 h-5 rounded-md ${iconColor} text-[11px] font-bold flex items-center justify-center shadow-xs">
+                          ${iconLetter}
+                        </span>
+                      </div>
+
+                      <!-- Información del Perfil -->
+                      <div class="min-w-0 flex-1">
+                        <div class="flex items-center space-x-2">
+                          <h2 class="text-base font-bold text-slate-900 group-hover:text-indigo-600 transition-colors truncate">
+                            ${p.nombre}
+                          </h2>
+                          <span class="hidden sm:inline-block text-[11px] font-semibold ${t.badgeBg} border px-2 py-0.2 rounded-md">
+                            ${p.badge || 'Activo'}
+                          </span>
+                        </div>
+                        <p class="text-xs font-medium text-slate-500 truncate mt-0.5">
+                          ${p.titulo}
+                        </p>
+                        <div class="flex items-center gap-2 mt-1.5">
+                          <span class="font-mono text-[11px] text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200/80">
+                            ?p=${p.id}
+                          </span>
+                          <span class="text-slate-300">•</span>
+                          <span class="text-[11px] text-slate-500">
+                            ${p.links.length} enlaces
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Botón de acción flecha -->
+                    <div class="text-slate-400 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all pl-2 shrink-0">
+                      ${getIconSvg('chevronRight', 'w-5 h-5')}
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+
+            <!-- Panel Lateral de Métricas y Funcionalidades (Sleek Interface Right Panel) -->
+            <div class="space-y-4">
+              <div class="text-xs uppercase tracking-wider font-bold text-slate-400 mb-1 px-1">
+                Resumen de Plataforma
+              </div>
+
+              <!-- Stat Card 1 -->
+              <div class="bg-white border border-[#e2e8f0] rounded-2xl p-5 shadow-2xs">
+                <div class="text-xs uppercase tracking-wider font-bold text-slate-400">Total Perfiles</div>
+                <div class="text-3xl font-extrabold text-indigo-600 mt-1">3 Activos</div>
+                <div class="mt-2 text-xs text-[#10b981] font-semibold flex items-center gap-1">
+                  <span>●</span> 100% Client-Side Routing
+                </div>
+              </div>
+
+              <!-- Stat Card 2 -->
+              <div class="bg-white border border-[#e2e8f0] rounded-2xl p-5 shadow-2xs">
+                <div class="text-xs uppercase tracking-wider font-bold text-slate-400">Rendimiento</div>
+                <div class="text-3xl font-extrabold text-slate-900 mt-1">&lt; 20ms</div>
+                <div class="mt-2 text-xs text-slate-500">
+                  Sin dependencias ni llamadas a backend
+                </div>
+              </div>
+
+              <!-- Pro Tip Card (Estilo Dark Card Sleek) -->
+              <div class="bg-[#1e293b] text-white rounded-2xl p-5 shadow-md">
+                <div class="text-xs uppercase tracking-wider font-bold text-indigo-400 mb-1">
+                  Enrutamiento Directo
+                </div>
+                <div class="text-sm font-semibold mb-1 text-slate-100">Comparte tu enlace único</div>
+                <div class="text-xs text-slate-400 leading-relaxed">
+                  Añade <code class="text-indigo-300 bg-slate-800 px-1 py-0.5 rounded">?p=trabajo</code> a tu URL para enviar a tus visitantes directamente a tu perfil profesional.
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- Pie del Hub -->
+          <footer class="text-center pt-6 border-t border-[#e2e8f0] text-xs text-slate-400">
+            LinkHub.pro • Arquitectura estática en archivo único index.html • Compatible con GitHub Pages
+          </footer>
+        </div>
+      `;
+    }
+
+    // VISTA 2: Perfil individual activo (cuando ?p=slug coincide)
+    function renderProfileView(profile) {
+      const t = profile.tema;
+
+      return `
+        <div class="max-w-md w-full mx-auto animate-fadeInUp">
+          
+          <!-- Barra superior contextual del perfil -->
+          <div class="flex items-center justify-between mb-6">
+            <button 
+              onclick="navigateToProfile('')" 
+              class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white border border-[#e2e8f0] text-slate-600 hover:text-slate-900 hover:border-slate-300 transition-colors shadow-2xs"
+              title="Volver al selector de perfiles"
+            >
+              ${getIconSvg('arrowLeft', 'w-3.5 h-3.5')}
+              <span>Todos los perfiles</span>
+            </button>
+
+            <span class="text-xs font-mono font-semibold text-slate-400 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-full">
+              ?p=${profile.id}
+            </span>
+          </div>
+
+          <!-- TARJETA PRINCIPAL DEL PERFIL (Sleek Interface Hub-Preview Card) -->
+          <div class="bg-white border border-[#e2e8f0] rounded-3xl shadow-sleek p-6 sm:p-8 relative">
+            
+            <!-- Cabecera del Perfil (Avatar + Nombre + Bio) -->
+            <header class="text-center mb-7">
+              <div class="relative inline-block mb-3">
+                <img 
+                  src="${profile.avatarUrl}" 
+                  alt="Avatar de ${profile.nombre}" 
+                  class="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover mx-auto border-4 border-white shadow-md ring-1 ring-[#e2e8f0] transition-transform hover:scale-105 duration-200"
+                  onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400&auto=format&fit=crop&q=80'"
+                />
+                ${profile.badge ? `
+                  <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap px-3 py-0.5 rounded-full text-[11px] font-bold tracking-wide shadow-xs ${t.badgeBg} border">
+                    ${profile.badge}
+                  </div>
+                ` : ''}
+              </div>
+
+              <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 mt-2">
+                ${profile.nombre}
+              </h1>
+              
+              <p class="text-xs sm:text-sm font-bold ${t.accentColor} mt-1">
+                ${profile.titulo}
+              </p>
+
+              <p class="text-xs sm:text-sm text-slate-500 mt-2.5 max-w-xs mx-auto leading-relaxed">
+                ${profile.bio}
+              </p>
+            </header>
+
+            <!-- PILA DE ENLACES (Sleek Interface Link-Stack) -->
+            <section aria-label="Enlaces destacados y principales" class="space-y-3 mb-8">
+              ${profile.links.map(link => {
+                const isFeatured = link.destacado === true;
+                const cardClasses = isFeatured
+                  ? `${t.featuredBorder} shadow-sm`
+                  : `bg-[#f8fafc] border-[#e2e8f0] ${t.linkHoverBorder} hover:bg-white`;
+
+                return `
+                  <a 
+                    href="${link.url}" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    class="group relative block w-full p-4 rounded-2xl border transition-all duration-200 hover:-translate-y-0.5 hover:shadow-card ${cardClasses}"
+                  >
+                    <div class="flex items-center space-x-3.5">
+                      <!-- Icono representativo del enlace -->
+                      <div class="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${isFeatured ? 'bg-white text-indigo-600 shadow-2xs' : `${t.accentBg} ${t.accentColor}`} border border-slate-200/60 transition-transform group-hover:scale-105">
+                        ${getIconSvg(link.icono, 'w-4 h-4')}
+                      </div>
+
+                      <!-- Texto del enlace -->
+                      <div class="flex-1 min-w-0 pr-2">
+                        <div class="flex items-center space-x-2">
+                          ${isFeatured ? `
+                            <span class="w-2 h-2 rounded-full bg-[#10b981] animate-pulse shrink-0"></span>
+                          ` : ''}
+                          <span class="text-sm font-bold text-slate-800 group-hover:${t.accentColor} transition-colors line-clamp-1">
+                            ${link.titulo}
+                          </span>
+                          ${isFeatured ? `
+                            <span class="shrink-0 text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md ${t.featuredBadge} border">
+                              Destacado
+                            </span>
+                          ` : ''}
+                        </div>
+                        ${link.descripcion ? `
+                          <p class="text-xs text-slate-500 group-hover:text-slate-600 transition-colors mt-0.5 line-clamp-1">
+                            ${link.descripcion}
+                          </p>
+                        ` : ''}
+                      </div>
+
+                      <!-- Flecha chevron -->
+                      <div class="shrink-0 text-slate-400 group-hover:text-slate-700 group-hover:translate-x-0.5 transition-all">
+                        ${getIconSvg('chevronRight', 'w-4 h-4')}
+                      </div>
+                    </div>
+                  </a>
+                `;
+              }).join('')}
+            </section>
+
+            <!-- PIE SOCIAL (Sleek Interface Social-Circle Footer) -->
+            ${profile.redes && profile.redes.length > 0 ? `
+              <footer class="pt-5 border-t border-[#e2e8f0] flex flex-col items-center">
+                <div class="flex items-center justify-center gap-3 flex-wrap">
+                  ${profile.redes.map(red => `
+                    <a 
+                      href="${red.url}" 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      class="w-10 h-10 rounded-full bg-white border border-[#e2e8f0] text-slate-600 hover:text-indigo-600 hover:border-indigo-300 hover:shadow-2xs flex items-center justify-center transition-all hover:scale-105"
+                      aria-label="${red.label}"
+                      title="${red.label}"
+                    >
+                      ${getIconSvg(red.red, 'w-4 h-4')}
+                    </a>
+                  `).join('')}
+                </div>
+                <p class="text-[11px] text-slate-400 mt-5">
+                  © ${new Date().getFullYear()} ${profile.nombre} • LinkHub
+                </p>
+              </footer>
+            ` : ''}
+
+          </div>
+
+        </div>
+      `;
+    }
+
+    // VISTA 3: Estado 404 Visual (cuando ?p=slug no existe)
+    function renderNotFoundView(requestedSlug) {
+      return `
+        <div class="max-w-md w-full mx-auto text-center py-8 animate-fadeInUp">
+          <div class="bg-white border border-[#e2e8f0] rounded-3xl p-8 shadow-sleek">
+            
+            <div class="w-16 h-16 mx-auto rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-500 mb-5">
+              <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+            </div>
+
+            <span class="text-[11px] uppercase font-mono font-bold tracking-wider text-rose-600 bg-rose-50 px-3 py-1 rounded-full border border-rose-200">
+              Error 404 • Perfil no encontrado
+            </span>
+
+            <h2 class="text-xl font-extrabold text-slate-900 mt-4 mb-2">
+              No encontramos el perfil solicitado
+            </h2>
+
+            <p class="text-xs sm:text-sm text-slate-500 max-w-xs mx-auto mb-6 leading-relaxed">
+              El identificador <code class="text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded font-mono font-bold">"?p=${escapeHtml(requestedSlug || '')}"</code> no coincide con ningún perfil registrado.
+            </p>
+
+            <div class="space-y-2.5 max-w-xs mx-auto">
+              <button 
+                onclick="navigateToProfile('')" 
+                class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-sm shadow-indigo-600/20 transition-all flex items-center justify-center gap-2"
+              >
+                ${getIconSvg('arrowLeft', 'w-4 h-4')}
+                <span>Ir al Directorio de Perfiles</span>
+              </button>
+
+              <button 
+                onclick="navigateToProfile('trabajo')" 
+                class="w-full py-2 px-4 rounded-xl bg-[#f8fafc] hover:bg-slate-100 border border-[#e2e8f0] text-slate-700 text-xs font-semibold transition-colors"
+              >
+                Ver perfil de ejemplo: Trabajo
+              </button>
+            </div>
+
+          </div>
+        </div>
+      `;
+    }
+
+    /**
+     * =========================================================================
+     * 5. ACTUALIZACIÓN DEL QUICK DOCK (Barra inferior de prueba)
+     * =========================================================================
+     */
+    function updateQuickDock(activeSlug) {
+      const buttons = {
+        hub: document.getElementById('dock-btn-hub'),
+        guitarra: document.getElementById('dock-btn-guitarra'),
+        trabajo: document.getElementById('dock-btn-trabajo'),
+        personal: document.getElementById('dock-btn-personal')
+      };
+
+      Object.entries(buttons).forEach(([key, btn]) => {
+        if (!btn) return;
+        btn.className = "px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100";
+      });
+
+      if (!activeSlug && buttons.hub) {
+        buttons.hub.className = "px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5 bg-indigo-600 text-white font-bold shadow-sm shadow-indigo-600/25";
+      } else if (activeSlug && buttons[activeSlug]) {
+        const profile = profilesData[activeSlug];
+        const activeClass = (profile && profile.tema && profile.tema.dockActive) 
+          ? profile.tema.dockActive 
+          : "bg-indigo-600 text-white shadow-sm shadow-indigo-600/25";
+        buttons[activeSlug].className = `px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5 font-bold ${activeClass}`;
+      }
+    }
+
+    /**
+     * =========================================================================
+     * 6. CONTROLADOR DE LA APLICACIÓN (Router & Dispatcher)
+     * =========================================================================
+     */
+    function renderApp() {
+      const container = document.getElementById('app-root');
+      if (!container) return;
+
+      const profileSlug = getProfileParam();
+
+      if (profileSlug && profilesData[profileSlug]) {
+        const profile = profilesData[profileSlug];
+        document.title = `${profile.nombre} | LinkHub.pro`;
+        container.innerHTML = renderProfileView(profile);
+      } else if (profileSlug) {
+        document.title = "Perfil No Encontrado | LinkHub.pro";
+        container.innerHTML = renderNotFoundView(profileSlug);
+      } else {
+        document.title = "Directorio de Perfiles | LinkHub.pro";
+        container.innerHTML = renderHubView();
+      }
+
+      updateQuickDock(profileSlug);
+    }
+
+    /**
+     * =========================================================================
+     * 7. ACCIONES DE USUARIO (Compartir, Copiar URL, Toast, Modal)
+     * =========================================================================
+     */
+    let toastTimeout = null;
+
+    function showToast(message) {
+      const toastEl = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-message');
+      if (!toastEl || !toastMsg) return;
+
+      toastMsg.textContent = message;
+      toastEl.classList.remove('opacity-0', 'pointer-events-none');
+      toastEl.classList.add('opacity-100');
+
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toastEl.classList.remove('opacity-100');
+        toastEl.classList.add('opacity-0', 'pointer-events-none');
+      }, 2400);
+    }
+
+    function shareCurrentProfile(profileName) {
+      const shareUrl = window.location.href;
+
+      if (navigator.share && /mobile|android|iphone|ipad/i.test(navigator.userAgent)) {
+        navigator.share({
+          title: profileName ? `Enlaces de ${profileName}` : 'LinkHub.pro',
+          url: shareUrl
+        }).catch(() => {
+          copyToClipboard(shareUrl);
+        });
+      } else {
+        copyToClipboard(shareUrl);
+      }
+    }
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast("¡Enlace copiado al portapapeles!");
+        }).catch(() => {
+          fallbackCopyTextToClipboard(text);
+        });
+      } else {
+        fallbackCopyTextToClipboard(text);
+      }
+    }
+
+    function fallbackCopyTextToClipboard(text) {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.position = "fixed";
+      textArea.style.top = "-9999px";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        showToast("¡Enlace copiado al portapapeles!");
+      } catch (err) {
+        showToast("No se pudo copiar el enlace");
+      }
+      document.body.removeChild(textArea);
+    }
+
+    function toggleDockHelp() {
+      const modal = document.getElementById('help-modal');
+      if (modal) {
+        modal.classList.toggle('hidden');
+      }
+    }
+
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    document.addEventListener('DOMContentLoaded', renderApp);
+    if (document.readyState === 'interactive' || document.readyState === 'complete') {
+      renderApp();
+    }
+  </script>
+</body>
+</html>

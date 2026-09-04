@@ -1,0 +1,6 @@
+{
+  "name": "Hub de Enlaces Multi-Perfil",
+  "description": "Aplicación web responsive tipo Linktree multi-perfil client-side en un único archivo HTML autosuficiente con Tailwind CSS y Vanilla JS.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
