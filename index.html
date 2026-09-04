@@ -4,12 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Hub de Enlaces Multi-Perfil | LinkHub.pro</title>
-  <meta name="description" content="Aplicación web responsive tipo Linktree multi-perfil client-side en un único archivo HTML con diseño Sleek Interface." />
+  <meta name="description" content="Aplicación web responsive tipo Linktree multi-perfil client-side con panel de edición visual integrado y exportador para GitHub Pages." />
   
   <!-- Open Graph / Redes Sociales -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Hub de Enlaces Multi-Perfil" />
-  <meta property="og:description" content="Plataforma de enlaces multi-perfil estática y personalizable sin backend con estética Sleek Interface." />
+  <meta property="og:description" content="Plataforma de enlaces multi-perfil estática, personalizable en vivo y sin backend con estética Sleek Interface." />
   
   <!-- Google Fonts: Plus Jakarta Sans para máxima legibilidad tipográfica y estética limpia -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -39,7 +39,8 @@
           boxShadow: {
             'sleek': '0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03)',
             'card': '0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -2px rgba(0, 0, 0, 0.02)',
-            'toast': '0 10px 15px -3px rgba(0, 0, 0, 0.15), 0 4px 6px -4px rgba(0, 0, 0, 0.1)'
+            'toast': '0 10px 15px -3px rgba(0, 0, 0, 0.15), 0 4px 6px -4px rgba(0, 0, 0, 0.1)',
+            'modal': '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
           },
           keyframes: {
             fadeInUp: {
@@ -61,7 +62,6 @@
   </script>
 
   <style>
-    /* Variables de diseño del tema Sleek Interface */
     :root {
       --bg: #f8fafc;
       --card: #ffffff;
@@ -87,6 +87,23 @@
       display: flex;
       flex-direction: column;
     }
+
+    /* Scrollbars elegantes para el panel de edición */
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 9999px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
   </style>
 </head>
 
@@ -108,20 +125,36 @@
     </div>
 
     <!-- Acciones de navegación superior -->
-    <div class="flex items-center space-x-2 sm:space-x-3">
+    <div class="flex items-center space-x-2 sm:space-x-2.5">
+      <!-- Botón de apertura del Panel de Edición Visual -->
+      <button 
+        onclick="openEditorModal()" 
+        id="nav-btn-editor"
+        class="px-3 py-1.5 sm:px-3.5 sm:py-1.5 rounded-lg border border-indigo-200 bg-indigo-50/80 hover:bg-indigo-100 text-indigo-700 font-semibold text-xs sm:text-sm flex items-center gap-1.5 transition-all shadow-2xs active:scale-95"
+        title="Editar perfiles, enlaces y apariencia sin tocar código"
+      >
+        <svg class="w-3.5 h-3.5 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+        </svg>
+        <span>Editar Tarjetas</span>
+      </button>
+
+      <!-- Botón de guía de enrutamiento -->
       <button 
         onclick="toggleDockHelp()" 
-        class="px-3 py-1.5 rounded-lg border border-[#e2e8f0] bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs sm:text-sm flex items-center gap-1.5 transition-colors shadow-2xs"
-        title="Parámetros de URL y enrutamiento"
+        class="hidden sm:flex px-3 py-1.5 rounded-lg border border-[#e2e8f0] bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs sm:text-sm items-center gap-1.5 transition-colors shadow-2xs"
+        title="Parámetros de URL y enrutamiento (?p=)"
       >
         <svg class="w-4 h-4 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="10"></circle>
           <line x1="12" y1="16" x2="12" y2="12"></line>
           <line x1="12" y1="8" x2="12.01" y2="8"></line>
         </svg>
-        <span class="hidden xs:inline">Enrutamiento</span>
+        <span>Rutas (?p=)</span>
       </button>
 
+      <!-- Botón Compartir Hub -->
       <button 
         onclick="shareCurrentProfile()" 
         class="px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs sm:text-sm flex items-center gap-1.5 transition-all shadow-sm shadow-indigo-600/20 active:scale-95"
@@ -134,7 +167,7 @@
           <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
           <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
         </svg>
-        <span>Compartir Hub</span>
+        <span>Compartir</span>
       </button>
     </div>
   </header>
@@ -170,25 +203,20 @@
 
       <span class="w-px h-4 bg-slate-200"></span>
 
-      <!-- Botón Perfil Guitarra -->
-      <button onclick="navigateToProfile('guitarra')" id="dock-btn-guitarra" class="px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
-        <span>🎸</span>
-        <span class="hidden sm:inline">Guitarra</span>
-      </button>
-
-      <!-- Botón Perfil Trabajo -->
-      <button onclick="navigateToProfile('trabajo')" id="dock-btn-trabajo" class="px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
-        <span>💼</span>
-        <span class="hidden sm:inline">Trabajo</span>
-      </button>
-
-      <!-- Botón Perfil Personal -->
-      <button onclick="navigateToProfile('personal')" id="dock-btn-personal" class="px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
-        <span>☕</span>
-        <span class="hidden sm:inline">Personal</span>
-      </button>
+      <!-- Contenedor dinámico de botones de perfil en el dock -->
+      <div id="dock-profiles-container" class="flex items-center gap-1 sm:gap-1.5">
+        <!-- Generado dinámicamente -->
+      </div>
 
       <span class="w-px h-4 bg-slate-200"></span>
+
+      <!-- Botón rápido para abrir editor desde el dock -->
+      <button onclick="openEditorModal()" title="Abrir panel de edición" class="w-7 h-7 rounded-full text-indigo-600 hover:bg-indigo-50 flex items-center justify-center transition-colors">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 20h9"></path>
+          <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+        </svg>
+      </button>
 
       <!-- Indicador / Ayuda rápida -->
       <button onclick="toggleDockHelp()" title="Información sobre los parámetros de URL (?p=)" class="w-7 h-7 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex items-center justify-center transition-colors">
@@ -213,13 +241,10 @@
       </div>
       <div class="py-4 space-y-3 text-sm text-slate-600 leading-relaxed">
         <p>Esta aplicación funciona <strong>100% en el navegador</strong> mediante el parámetro <code class="text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded font-mono text-xs">?p=</code> en la URL:</p>
-        <div class="space-y-1.5 bg-[#f8fafc] p-3 rounded-2xl border border-[#e2e8f0] font-mono text-xs text-slate-700">
-          <div>• <span class="text-amber-600 font-bold">?p=guitarra</span> → Perfil Academia de Guitarra</div>
-          <div>• <span class="text-indigo-600 font-bold">?p=trabajo</span> → Perfil Profesional & Código</div>
-          <div>• <span class="text-emerald-600 font-bold">?p=personal</span> → Perfil Personal & Blog</div>
-          <div>• <span class="text-slate-500 font-bold">(sin parámetro)</span> → Selector de Hub Principal</div>
+        <div id="help-routes-list" class="space-y-1.5 bg-[#f8fafc] p-3 rounded-2xl border border-[#e2e8f0] font-mono text-xs text-slate-700">
+          <!-- Rutas activas listadas dinámicamente -->
         </div>
-        <p class="text-xs text-slate-500">Sin backend ni base de datos. Lista para ser alojada en GitHub Pages o cualquier servidor de archivos estáticos.</p>
+        <p class="text-xs text-slate-500">Puedes editar cualquier perfil con el botón <strong>"Editar Tarjetas"</strong> y descargar el <code class="text-slate-700 bg-slate-100 px-1 py-0.5 rounded">index.html</code> listo para producción sin usar código.</p>
       </div>
       <button onclick="toggleDockHelp()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-semibold transition-colors shadow-sm shadow-indigo-500/20">
         Entendido
@@ -227,15 +252,118 @@
     </div>
   </div>
 
+  <!-- PANEL DE EDICIÓN VISUAL (MODAL / DRAWER SLEEK INTERFACE) -->
+  <div id="editor-modal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 hidden overflow-y-auto">
+    <div class="bg-white border border-[#e2e8f0] rounded-3xl max-w-3xl w-full shadow-modal my-auto flex flex-col max-h-[92vh] overflow-hidden animate-fadeInUp">
+      
+      <!-- Cabecera del Editor -->
+      <div class="px-6 py-4 border-b border-[#e2e8f0] flex items-center justify-between bg-white shrink-0">
+        <div class="flex items-center space-x-3">
+          <div class="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center font-bold">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 20h9"></path>
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-slate-900 leading-tight">Panel de Edición de Perfiles</h2>
+            <p class="text-xs text-slate-500">Edita tarjetas, enlaces y temas. Guarda en tu navegador o descarga para GitHub Pages.</p>
+          </div>
+        </div>
+        <div class="flex items-center space-x-1.5">
+          <button onclick="resetEditorProfiles()" title="Restablecer perfiles originales" class="px-2.5 py-1.5 text-xs text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors flex items-center gap-1 font-medium">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+              <path d="M3 3v5h5"></path>
+            </svg>
+            <span class="hidden sm:inline">Restablecer</span>
+          </button>
+          <button onclick="closeEditorModal()" class="w-8 h-8 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex items-center justify-center text-lg font-bold transition-colors">
+            ✕
+          </button>
+        </div>
+      </div>
+
+      <!-- Selector de Perfil a Editar -->
+      <div class="px-6 py-3 bg-[#f8fafc] border-b border-[#e2e8f0] flex items-center justify-between gap-3 overflow-x-auto shrink-0 custom-scrollbar">
+        <div class="flex items-center gap-2" id="editor-profile-tabs">
+          <!-- Pestañas de perfiles inyectadas por JS -->
+        </div>
+        <button 
+          onclick="promptCreateNewProfile()" 
+          class="shrink-0 px-3 py-1.5 rounded-lg border border-dashed border-indigo-300 text-indigo-600 hover:bg-indigo-50 font-bold text-xs flex items-center gap-1 transition-colors"
+        >
+          <span>+ Nuevo Perfil</span>
+        </button>
+      </div>
+
+      <!-- Cuerpo del Editor (Scrollable) -->
+      <div class="p-6 overflow-y-auto space-y-6 flex-1 custom-scrollbar" id="editor-form-body">
+        <!-- Formulario inyectado dinámicamente para el perfil seleccionado -->
+      </div>
+
+      <!-- Pie de Acciones del Editor -->
+      <div class="px-6 py-4 border-t border-[#e2e8f0] bg-white flex items-center justify-between flex-wrap gap-3 shrink-0">
+        <div class="flex items-center gap-2">
+          <!-- Botón de Exportar JSON -->
+          <button 
+            onclick="copyProfilesJson()" 
+            class="px-3 py-2 rounded-xl border border-[#e2e8f0] bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-2xs"
+            title="Copiar objeto profilesData al portapapeles"
+          >
+            <svg class="w-4 h-4 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            <span>Copiar JSON</span>
+          </button>
+
+          <!-- Botón de Descargar index.html para GitHub Pages -->
+          <button 
+            onclick="downloadUpdatedIndexHtml()" 
+            class="px-3 py-2 rounded-xl border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold flex items-center gap-1.5 transition-colors shadow-2xs"
+            title="Descarga el archivo index.html completo con tus datos incrustados para subirlo directo a GitHub Pages"
+          >
+            <svg class="w-4 h-4 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>Descargar index.html listo</span>
+          </button>
+        </div>
+
+        <div class="flex items-center gap-2 ml-auto">
+          <button 
+            onclick="closeEditorModal()" 
+            class="px-4 py-2 rounded-xl border border-[#e2e8f0] bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors"
+          >
+            Cerrar
+          </button>
+          <button 
+            onclick="saveEditorChangesAndPreview()" 
+            class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm shadow-indigo-600/25 transition-all active:scale-95 flex items-center gap-1.5"
+          >
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <span>Guardar y Ver Perfil</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
   <!-- LÓGICA PRINCIPAL VANILLA JAVASCRIPT (ES6+) -->
   <script>
     /**
      * =========================================================================
-     * 1. ESTRUCTURA DE DATOS CENTRALIZADA (Multi-Perfil)
+     * 1. ESTRUCTURA DE DATOS CENTRALIZADA POR DEFECTO (Single-File Architecture)
      * =========================================================================
-     * Configuración modular de perfiles bajo el diseño Sleek Interface.
+     * Si no existen datos en localStorage, se toman estos valores base.
      */
-    const profilesData = {
+    const defaultProfilesData = {
       guitarra: {
         id: "guitarra",
         nombre: "Mario Guitar Studio",
@@ -410,9 +538,113 @@
 
     /**
      * =========================================================================
-     * 2. REPOSITORIO DE ICONOS SVG VECTORIALES
+     * 2. CAPA DE PERSISTENCIA LOCAL (LocalStorage + Fallback)
      * =========================================================================
      */
+    const STORAGE_KEY = 'linkhub_custom_profiles_v1';
+
+    function getProfilesData() {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (parsed && typeof parsed === 'object' && Object.keys(parsed).length > 0) {
+            return parsed;
+          }
+        }
+      } catch (e) {
+        console.warn("No se pudo leer localStorage:", e);
+      }
+      return JSON.parse(JSON.stringify(defaultProfilesData));
+    }
+
+    function saveProfilesData(data) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      } catch (e) {
+        console.error("Error guardando en localStorage:", e);
+      }
+    }
+
+    /**
+     * =========================================================================
+     * 3. DEFINICIÓN DE TEMAS VISUALES PREDEFINIDOS
+     * =========================================================================
+     */
+    const THEMES = {
+      indigo: {
+        name: "Índigo Profesional (Tech)",
+        accentColor: "text-indigo-600",
+        accentBg: "bg-indigo-50",
+        accentBorder: "border-indigo-200",
+        badgeBg: "bg-indigo-50 text-indigo-700 border-indigo-200",
+        linkHoverBorder: "hover:border-indigo-500",
+        avatarRing: "ring-indigo-400/50",
+        featuredBorder: "border-indigo-400 bg-indigo-50/40",
+        featuredBadge: "bg-indigo-100 text-indigo-800 border-indigo-300",
+        dockActive: "bg-indigo-600 text-white shadow-md shadow-indigo-600/25"
+      },
+      amber: {
+        name: "Ámbar Cálido (Música / Artes)",
+        accentColor: "text-amber-600",
+        accentBg: "bg-amber-50",
+        accentBorder: "border-amber-200",
+        badgeBg: "bg-amber-50 text-amber-700 border-amber-200",
+        linkHoverBorder: "hover:border-amber-400",
+        avatarRing: "ring-amber-400/50",
+        featuredBorder: "border-amber-400 bg-amber-50/40",
+        featuredBadge: "bg-amber-100 text-amber-800 border-amber-300",
+        dockActive: "bg-amber-500 text-white shadow-md shadow-amber-500/25"
+      },
+      emerald: {
+        name: "Esmeralda Sereno (Blog / Vida)",
+        accentColor: "text-emerald-600",
+        accentBg: "bg-emerald-50",
+        accentBorder: "border-emerald-200",
+        badgeBg: "bg-emerald-50 text-emerald-700 border-emerald-200",
+        linkHoverBorder: "hover:border-emerald-500",
+        avatarRing: "ring-emerald-400/50",
+        featuredBorder: "border-emerald-400 bg-emerald-50/40",
+        featuredBadge: "bg-emerald-100 text-emerald-800 border-emerald-300",
+        dockActive: "bg-emerald-600 text-white shadow-md shadow-emerald-500/25"
+      },
+      violet: {
+        name: "Violeta Creativo (Diseño / Innovación)",
+        accentColor: "text-violet-600",
+        accentBg: "bg-violet-50",
+        accentBorder: "border-violet-200",
+        badgeBg: "bg-violet-50 text-violet-700 border-violet-200",
+        linkHoverBorder: "hover:border-violet-500",
+        avatarRing: "ring-violet-400/50",
+        featuredBorder: "border-violet-400 bg-violet-50/40",
+        featuredBadge: "bg-violet-100 text-violet-800 border-violet-300",
+        dockActive: "bg-violet-600 text-white shadow-md shadow-violet-500/25"
+      },
+      rose: {
+        name: "Rosa Pastel (Creadores / Fitness)",
+        accentColor: "text-rose-600",
+        accentBg: "bg-rose-50",
+        accentBorder: "border-rose-200",
+        badgeBg: "bg-rose-50 text-rose-700 border-rose-200",
+        linkHoverBorder: "hover:border-rose-500",
+        avatarRing: "ring-rose-400/50",
+        featuredBorder: "border-rose-400 bg-rose-50/40",
+        featuredBadge: "bg-rose-100 text-rose-800 border-rose-300",
+        dockActive: "bg-rose-600 text-white shadow-md shadow-rose-500/25"
+      }
+    };
+
+    /**
+     * =========================================================================
+     * 4. REPOSITORIO DE ICONOS SVG VECTORIALES
+     * =========================================================================
+     */
+    const AVAILABLE_ICONS = [
+      'calendar', 'youtube', 'whatsapp', 'globe', 'briefcase', 
+      'linkedin', 'github', 'file-text', 'book-open', 'spotify', 
+      'camera', 'bookmark', 'instagram', 'twitter', 'mail'
+    ];
+
     function getIconSvg(iconName, className = "w-5 h-5") {
       const icons = {
         calendar: `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>`,
@@ -440,7 +672,7 @@
 
     /**
      * =========================================================================
-     * 3. ENRUTAMIENTO EN EL CLIENTE (Client-Side Routing)
+     * 5. ENRUTAMIENTO EN EL CLIENTE (Client-Side Routing)
      * =========================================================================
      */
     function getProfileParam() {
@@ -468,13 +700,14 @@
 
     /**
      * =========================================================================
-     * 4. RENDERIZADORES DE VISTA (Sleek Interface Style)
+     * 6. RENDERIZADORES DE VISTA (Sleek Interface Style)
      * =========================================================================
      */
 
     // VISTA 1: Selector visual / Hub Principal (cuando no hay ?p=)
     function renderHubView() {
-      const profileKeys = Object.keys(profilesData);
+      const data = getProfilesData();
+      const profileKeys = Object.keys(data);
 
       return `
         <div class="max-w-5xl mx-auto animate-fadeInUp">
@@ -489,7 +722,7 @@
               Directorio de Perfiles & Enlaces
             </h1>
             <p class="text-slate-500 text-sm sm:text-base max-w-md mx-auto leading-relaxed">
-              Selecciona cualquiera de los perfiles disponibles para previsualizar su hub de enlaces interactivo.
+              Selecciona cualquiera de los perfiles disponibles o usa el editor integrado para crear los tuyos.
             </p>
           </div>
 
@@ -498,15 +731,22 @@
             
             <!-- Columna Principal: Tarjetas de Perfil -->
             <div class="lg:col-span-2 space-y-3.5">
-              <div class="text-xs uppercase tracking-wider font-bold text-slate-400 mb-1 px-1">
-                Perfiles Activos
+              <div class="flex items-center justify-between mb-1 px-1">
+                <span class="text-xs uppercase tracking-wider font-bold text-slate-400">
+                  Perfiles Activos (${profileKeys.length})
+                </span>
+                <button 
+                  onclick="openEditorModal()" 
+                  class="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-colors flex items-center gap-1"
+                >
+                  <span>+ Administrar o Crear</span>
+                </button>
               </div>
 
               ${profileKeys.map(key => {
-                const p = profilesData[key];
-                const t = p.tema;
-                const iconLetter = p.id === 'guitarra' ? 'G' : p.id === 'trabajo' ? 'A' : 'P';
-                const iconColor = p.id === 'guitarra' ? 'bg-amber-500 text-white' : p.id === 'trabajo' ? 'bg-indigo-600 text-white' : 'bg-emerald-600 text-white';
+                const p = data[key];
+                const t = p.tema || THEMES.indigo;
+                const iconLetter = (p.nombre || key).charAt(0).toUpperCase();
 
                 return `
                   <div 
@@ -525,7 +765,7 @@
                           loading="lazy"
                           onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&auto=format&fit=crop&q=80'"
                         />
-                        <span class="absolute -bottom-1 -right-1 w-5 h-5 rounded-md ${iconColor} text-[11px] font-bold flex items-center justify-center shadow-xs">
+                        <span class="absolute -bottom-1 -right-1 w-5 h-5 rounded-md bg-slate-900 text-white text-[11px] font-bold flex items-center justify-center shadow-xs">
                           ${iconLetter}
                         </span>
                       </div>
@@ -536,7 +776,7 @@
                           <h2 class="text-base font-bold text-slate-900 group-hover:text-indigo-600 transition-colors truncate">
                             ${p.nombre}
                           </h2>
-                          <span class="hidden sm:inline-block text-[11px] font-semibold ${t.badgeBg} border px-2 py-0.2 rounded-md">
+                          <span class="hidden sm:inline-block text-[11px] font-semibold ${t.badgeBg || 'bg-slate-100 text-slate-700 border-slate-200'} border px-2 py-0.2 rounded-md">
                             ${p.badge || 'Activo'}
                           </span>
                         </div>
@@ -549,7 +789,7 @@
                           </span>
                           <span class="text-slate-300">•</span>
                           <span class="text-[11px] text-slate-500">
-                            ${p.links.length} enlaces
+                            ${(p.links || []).length} enlaces
                           </span>
                         </div>
                       </div>
@@ -567,25 +807,45 @@
             <!-- Panel Lateral de Métricas y Funcionalidades (Sleek Interface Right Panel) -->
             <div class="space-y-4">
               <div class="text-xs uppercase tracking-wider font-bold text-slate-400 mb-1 px-1">
-                Resumen de Plataforma
+                Herramientas & Estado
               </div>
 
-              <!-- Stat Card 1 -->
+              <!-- Stat Card 1: Edición en Vivo -->
               <div class="bg-white border border-[#e2e8f0] rounded-2xl p-5 shadow-2xs">
-                <div class="text-xs uppercase tracking-wider font-bold text-slate-400">Total Perfiles</div>
-                <div class="text-3xl font-extrabold text-indigo-600 mt-1">3 Activos</div>
-                <div class="mt-2 text-xs text-[#10b981] font-semibold flex items-center gap-1">
-                  <span>●</span> 100% Client-Side Routing
+                <div class="flex items-center justify-between">
+                  <div class="text-xs uppercase tracking-wider font-bold text-slate-400">Edición en Vivo</div>
+                  <span class="w-2 h-2 rounded-full bg-[#10b981] animate-pulse"></span>
                 </div>
+                <div class="text-2xl font-extrabold text-indigo-600 mt-1.5">Personalizable</div>
+                <p class="mt-1 text-xs text-slate-500 leading-relaxed">
+                  Modifica títulos, avatares, colores y enlaces con el panel visual sin tocar código.
+                </p>
+                <button 
+                  onclick="openEditorModal()" 
+                  class="mt-3.5 w-full py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-1.5"
+                >
+                  <span>Abrir Editor de Tarjetas</span>
+                </button>
               </div>
 
-              <!-- Stat Card 2 -->
+              <!-- Stat Card 2: Exportador GitHub Pages -->
               <div class="bg-white border border-[#e2e8f0] rounded-2xl p-5 shadow-2xs">
-                <div class="text-xs uppercase tracking-wider font-bold text-slate-400">Rendimiento</div>
-                <div class="text-3xl font-extrabold text-slate-900 mt-1">&lt; 20ms</div>
-                <div class="mt-2 text-xs text-slate-500">
-                  Sin dependencias ni llamadas a backend
-                </div>
+                <div class="text-xs uppercase tracking-wider font-bold text-slate-400">Despliegue Estático</div>
+                <div class="text-lg font-bold text-slate-900 mt-1">Listo para GitHub Pages</div>
+                <p class="mt-1 text-xs text-slate-500 leading-relaxed">
+                  Descarga el <code class="text-slate-700 bg-slate-100 px-1 rounded">index.html</code> generado con tus datos listos para publicar sin base de datos.
+                </p>
+                <button 
+                  onclick="downloadUpdatedIndexHtml()" 
+                  class="mt-3 w-full py-2 border border-[#e2e8f0] hover:bg-slate-50 text-slate-700 font-semibold text-xs rounded-xl transition-colors flex items-center justify-center gap-1.5"
+                >
+                  <svg class="w-3.5 h-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
+                  <span>Descargar index.html</span>
+                </button>
               </div>
 
               <!-- Pro Tip Card (Estilo Dark Card Sleek) -->
@@ -613,13 +873,13 @@
 
     // VISTA 2: Perfil individual activo (cuando ?p=slug coincide)
     function renderProfileView(profile) {
-      const t = profile.tema;
+      const t = profile.tema || THEMES.indigo;
 
       return `
         <div class="max-w-md w-full mx-auto animate-fadeInUp">
           
           <!-- Barra superior contextual del perfil -->
-          <div class="flex items-center justify-between mb-6">
+          <div class="flex items-center justify-between mb-5">
             <button 
               onclick="navigateToProfile('')" 
               class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white border border-[#e2e8f0] text-slate-600 hover:text-slate-900 hover:border-slate-300 transition-colors shadow-2xs"
@@ -629,9 +889,23 @@
               <span>Todos los perfiles</span>
             </button>
 
-            <span class="text-xs font-mono font-semibold text-slate-400 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-full">
-              ?p=${profile.id}
-            </span>
+            <div class="flex items-center gap-2">
+              <button 
+                onclick="openEditorModal('${profile.id}')" 
+                class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 transition-colors shadow-2xs"
+                title="Editar este perfil"
+              >
+                <svg class="w-3 h-3 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 20h9"></path>
+                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                </svg>
+                <span>Editar</span>
+              </button>
+
+              <span class="text-xs font-mono font-semibold text-slate-400 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-full">
+                ?p=${profile.id}
+              </span>
+            </div>
           </div>
 
           <!-- TARJETA PRINCIPAL DEL PERFIL (Sleek Interface Hub-Preview Card) -->
@@ -647,7 +921,7 @@
                   onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400&auto=format&fit=crop&q=80'"
                 />
                 ${profile.badge ? `
-                  <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap px-3 py-0.5 rounded-full text-[11px] font-bold tracking-wide shadow-xs ${t.badgeBg} border">
+                  <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap px-3 py-0.5 rounded-full text-[11px] font-bold tracking-wide shadow-xs ${t.badgeBg || 'bg-slate-100 text-slate-700 border-slate-200'} border">
                     ${profile.badge}
                   </div>
                 ` : ''}
@@ -657,7 +931,7 @@
                 ${profile.nombre}
               </h1>
               
-              <p class="text-xs sm:text-sm font-bold ${t.accentColor} mt-1">
+              <p class="text-xs sm:text-sm font-bold ${t.accentColor || 'text-indigo-600'} mt-1">
                 ${profile.titulo}
               </p>
 
@@ -668,11 +942,11 @@
 
             <!-- PILA DE ENLACES (Sleek Interface Link-Stack) -->
             <section aria-label="Enlaces destacados y principales" class="space-y-3 mb-8">
-              ${profile.links.map(link => {
+              ${(profile.links || []).map(link => {
                 const isFeatured = link.destacado === true;
                 const cardClasses = isFeatured
-                  ? `${t.featuredBorder} shadow-sm`
-                  : `bg-[#f8fafc] border-[#e2e8f0] ${t.linkHoverBorder} hover:bg-white`;
+                  ? `${t.featuredBorder || 'border-indigo-400 bg-indigo-50/40'} shadow-sm`
+                  : `bg-[#f8fafc] border-[#e2e8f0] ${t.linkHoverBorder || 'hover:border-indigo-500'} hover:bg-white`;
 
                 return `
                   <a 
@@ -683,7 +957,7 @@
                   >
                     <div class="flex items-center space-x-3.5">
                       <!-- Icono representativo del enlace -->
-                      <div class="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${isFeatured ? 'bg-white text-indigo-600 shadow-2xs' : `${t.accentBg} ${t.accentColor}`} border border-slate-200/60 transition-transform group-hover:scale-105">
+                      <div class="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${isFeatured ? 'bg-white text-indigo-600 shadow-2xs' : `${t.accentBg || 'bg-indigo-50'} ${t.accentColor || 'text-indigo-600'}`} border border-slate-200/60 transition-transform group-hover:scale-105">
                         ${getIconSvg(link.icono, 'w-4 h-4')}
                       </div>
 
@@ -693,11 +967,11 @@
                           ${isFeatured ? `
                             <span class="w-2 h-2 rounded-full bg-[#10b981] animate-pulse shrink-0"></span>
                           ` : ''}
-                          <span class="text-sm font-bold text-slate-800 group-hover:${t.accentColor} transition-colors line-clamp-1">
+                          <span class="text-sm font-bold text-slate-800 group-hover:${t.accentColor || 'text-indigo-600'} transition-colors line-clamp-1">
                             ${link.titulo}
                           </span>
                           ${isFeatured ? `
-                            <span class="shrink-0 text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md ${t.featuredBadge} border">
+                            <span class="shrink-0 text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md ${t.featuredBadge || 'bg-indigo-100 text-indigo-800 border-indigo-300'} border">
                               Destacado
                             </span>
                           ` : ''}
@@ -729,8 +1003,8 @@
                       target="_blank" 
                       rel="noopener noreferrer" 
                       class="w-10 h-10 rounded-full bg-white border border-[#e2e8f0] text-slate-600 hover:text-indigo-600 hover:border-indigo-300 hover:shadow-2xs flex items-center justify-center transition-all hover:scale-105"
-                      aria-label="${red.label}"
-                      title="${red.label}"
+                      aria-label="${red.label || red.red}"
+                      title="${red.label || red.red}"
                     >
                       ${getIconSvg(red.red, 'w-4 h-4')}
                     </a>
@@ -784,10 +1058,10 @@
               </button>
 
               <button 
-                onclick="navigateToProfile('trabajo')" 
-                class="w-full py-2 px-4 rounded-xl bg-[#f8fafc] hover:bg-slate-100 border border-[#e2e8f0] text-slate-700 text-xs font-semibold transition-colors"
+                onclick="promptCreateProfileWithSlug('${escapeHtml(requestedSlug || '')}')" 
+                class="w-full py-2 px-4 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold transition-colors"
               >
-                Ver perfil de ejemplo: Trabajo
+                + Crear perfil con este nombre ("${escapeHtml(requestedSlug || '')}")
               </button>
             </div>
 
@@ -798,46 +1072,69 @@
 
     /**
      * =========================================================================
-     * 5. ACTUALIZACIÓN DEL QUICK DOCK (Barra inferior de prueba)
+     * 7. ACTUALIZACIÓN DEL QUICK DOCK (Barra inferior de prueba)
      * =========================================================================
      */
     function updateQuickDock(activeSlug) {
-      const buttons = {
-        hub: document.getElementById('dock-btn-hub'),
-        guitarra: document.getElementById('dock-btn-guitarra'),
-        trabajo: document.getElementById('dock-btn-trabajo'),
-        personal: document.getElementById('dock-btn-personal')
-      };
+      const data = getProfilesData();
+      const profileKeys = Object.keys(data);
+      const container = document.getElementById('dock-profiles-container');
+      const hubBtn = document.getElementById('dock-btn-hub');
 
-      Object.entries(buttons).forEach(([key, btn]) => {
-        if (!btn) return;
-        btn.className = "px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100";
-      });
+      // Actualizar botón hub
+      if (hubBtn) {
+        if (!activeSlug) {
+          hubBtn.className = "px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5 bg-indigo-600 text-white font-bold shadow-sm shadow-indigo-600/25";
+        } else {
+          hubBtn.className = "px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100";
+        }
+      }
 
-      if (!activeSlug && buttons.hub) {
-        buttons.hub.className = "px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5 bg-indigo-600 text-white font-bold shadow-sm shadow-indigo-600/25";
-      } else if (activeSlug && buttons[activeSlug]) {
-        const profile = profilesData[activeSlug];
-        const activeClass = (profile && profile.tema && profile.tema.dockActive) 
-          ? profile.tema.dockActive 
-          : "bg-indigo-600 text-white shadow-sm shadow-indigo-600/25";
-        buttons[activeSlug].className = `px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5 font-bold ${activeClass}`;
+      // Reconstruir botones dinámicos en el dock
+      if (container) {
+        container.innerHTML = profileKeys.map(slug => {
+          const p = data[slug];
+          const isActive = slug === activeSlug;
+          const activeClass = (p.tema && p.tema.dockActive) ? p.tema.dockActive : "bg-indigo-600 text-white shadow-sm shadow-indigo-600/25";
+          const btnClass = isActive 
+            ? `px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5 font-bold ${activeClass}`
+            : "px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100";
+
+          const icon = slug === 'guitarra' ? '🎸' : slug === 'trabajo' ? '💼' : slug === 'personal' ? '☕' : '✨';
+
+          return `
+            <button onclick="navigateToProfile('${p.id}')" class="${btnClass}">
+              <span>${icon}</span>
+              <span class="hidden sm:inline">${escapeHtml(p.nombre.split(' ')[0])}</span>
+            </button>
+          `;
+        }).join('');
+      }
+
+      // Actualizar listado de rutas en el modal de ayuda
+      const helpList = document.getElementById('help-routes-list');
+      if (helpList) {
+        helpList.innerHTML = profileKeys.map(slug => {
+          const p = data[slug];
+          return `<div>• <span class="text-indigo-600 font-bold">?p=${escapeHtml(slug)}</span> → ${escapeHtml(p.nombre)} (${escapeHtml(p.titulo)})</div>`;
+        }).join('') + `<div>• <span class="text-slate-500 font-bold">(sin parámetro)</span> → Selector de Hub Principal</div>`;
       }
     }
 
     /**
      * =========================================================================
-     * 6. CONTROLADOR DE LA APLICACIÓN (Router & Dispatcher)
+     * 8. CONTROLADOR DE LA APLICACIÓN (Router & Dispatcher)
      * =========================================================================
      */
     function renderApp() {
       const container = document.getElementById('app-root');
       if (!container) return;
 
+      const data = getProfilesData();
       const profileSlug = getProfileParam();
 
-      if (profileSlug && profilesData[profileSlug]) {
-        const profile = profilesData[profileSlug];
+      if (profileSlug && data[profileSlug]) {
+        const profile = data[profileSlug];
         document.title = `${profile.nombre} | LinkHub.pro`;
         container.innerHTML = renderProfileView(profile);
       } else if (profileSlug) {
@@ -853,7 +1150,7 @@
 
     /**
      * =========================================================================
-     * 7. ACCIONES DE USUARIO (Compartir, Copiar URL, Toast, Modal)
+     * 9. ACCIONES DE USUARIO (Compartir, Copiar URL, Toast, Modal de Ayuda)
      * =========================================================================
      */
     let toastTimeout = null;
@@ -925,8 +1222,573 @@
       }
     }
 
+    /**
+     * =========================================================================
+     * 10. PANEL DE EDICIÓN VISUAL (Lógica de Edición, Inyección y Persistencia)
+     * =========================================================================
+     */
+    let editingProfileSlug = null;
+    let localEditingProfiles = null;
+
+    function openEditorModal(slugToOpen) {
+      localEditingProfiles = getProfilesData();
+      const keys = Object.keys(localEditingProfiles);
+      
+      if (slugToOpen && localEditingProfiles[slugToOpen]) {
+        editingProfileSlug = slugToOpen;
+      } else if (!editingProfileSlug || !localEditingProfiles[editingProfileSlug]) {
+        editingProfileSlug = getProfileParam() || keys[0] || 'trabajo';
+      }
+
+      renderEditorTabs();
+      renderEditorProfileForm();
+
+      const modal = document.getElementById('editor-modal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeEditorModal() {
+      const modal = document.getElementById('editor-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function switchEditorProfile(slug) {
+      saveCurrentFormValuesToLocalEditing();
+      editingProfileSlug = slug;
+      renderEditorTabs();
+      renderEditorProfileForm();
+    }
+
+    function renderEditorTabs() {
+      const tabsContainer = document.getElementById('editor-profile-tabs');
+      if (!tabsContainer || !localEditingProfiles) return;
+
+      const keys = Object.keys(localEditingProfiles);
+
+      tabsContainer.innerHTML = keys.map(slug => {
+        const p = localEditingProfiles[slug];
+        const isSelected = slug === editingProfileSlug;
+        const activeClass = isSelected
+          ? "bg-indigo-600 text-white font-bold shadow-xs"
+          : "bg-white text-slate-700 hover:bg-slate-100 font-semibold border border-[#e2e8f0]";
+
+        return `
+          <button 
+            type="button"
+            onclick="switchEditorProfile('${escapeHtml(slug)}')" 
+            class="px-3 py-1 rounded-lg text-xs transition-all flex items-center gap-1.5 ${activeClass}"
+          >
+            <span>${escapeHtml(p.nombre || slug)}</span>
+            <span class="text-[10px] opacity-75 font-mono">(${escapeHtml(slug)})</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function renderEditorProfileForm() {
+      const body = document.getElementById('editor-form-body');
+      if (!body || !localEditingProfiles || !editingProfileSlug) return;
+
+      const p = localEditingProfiles[editingProfileSlug];
+      if (!p) return;
+
+      body.innerHTML = `
+        <div class="space-y-6">
+
+          <!-- Fila 1: Datos Principales -->
+          <div class="bg-white border border-[#e2e8f0] p-5 rounded-2xl space-y-4 shadow-2xs">
+            <div class="flex items-center justify-between border-b border-[#e2e8f0] pb-2.5">
+              <span class="text-xs uppercase font-bold tracking-wider text-slate-400">1. Información del Perfil</span>
+              <div class="flex items-center gap-2">
+                <span class="text-xs text-slate-400">Slug de URL:</span>
+                <span class="font-mono text-xs font-bold text-indigo-600 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded">
+                  ?p=${escapeHtml(p.id)}
+                </span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Nombre o Título Principal</label>
+                <input 
+                  type="text" 
+                  id="field-nombre" 
+                  value="${escapeHtml(p.nombre || '')}" 
+                  class="w-full px-3 py-2 text-sm rounded-xl border border-[#e2e8f0] focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
+                  placeholder="Ej: Mario Guitar Studio / Alex Dev"
+                />
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Subtítulo o Profesión</label>
+                <input 
+                  type="text" 
+                  id="field-titulo" 
+                  value="${escapeHtml(p.titulo || '')}" 
+                  class="w-full px-3 py-2 text-sm rounded-xl border border-[#e2e8f0] focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
+                  placeholder="Ej: Desarrollador Frontend & Creador"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Biografía Breve</label>
+              <textarea 
+                id="field-bio" 
+                rows="2" 
+                class="w-full px-3 py-2 text-sm rounded-xl border border-[#e2e8f0] focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
+                placeholder="Escribe 1 o 2 líneas sobre tu actividad..."
+              >${escapeHtml(p.bio || '')}</textarea>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Insignia / Badge (Opcional)</label>
+                <input 
+                  type="text" 
+                  id="field-badge" 
+                  value="${escapeHtml(p.badge || '')}" 
+                  class="w-full px-3 py-2 text-sm rounded-xl border border-[#e2e8f0] focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
+                  placeholder="Ej: 🎸 Clases 2025 / 💼 Disponible"
+                />
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Paleta de Tema Visual</label>
+                <select 
+                  id="field-theme" 
+                  class="w-full px-3 py-2 text-sm rounded-xl border border-[#e2e8f0] focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all bg-white"
+                >
+                  <option value="indigo" ${p.tema?.tag === 'trabajo' || p.tema?.tag === 'indigo' ? 'selected' : ''}>Índigo Sleek (Tech / Profesional)</option>
+                  <option value="amber" ${p.tema?.tag === 'guitarra' || p.tema?.tag === 'amber' ? 'selected' : ''}>Ámbar Cálido (Música / Artes)</option>
+                  <option value="emerald" ${p.tema?.tag === 'personal' || p.tema?.tag === 'emerald' ? 'selected' : ''}>Esmeralda Sereno (Blog / Minimal)</option>
+                  <option value="violet" ${p.tema?.tag === 'violet' ? 'selected' : ''}>Violeta Creativo (Diseño / Innovación)</option>
+                  <option value="rose" ${p.tema?.tag === 'rose' ? 'selected' : ''}>Rosa Pastel (Estilo / Lifestyle)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Avatar con previsualización en vivo -->
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">URL de la Imagen de Avatar</label>
+              <div class="flex items-center gap-3">
+                <img 
+                  id="avatar-preview-img" 
+                  src="${p.avatarUrl}" 
+                  class="w-12 h-12 rounded-full object-cover border-2 border-slate-200 shrink-0" 
+                  onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&auto=format&fit=crop&q=80'"
+                />
+                <input 
+                  type="url" 
+                  id="field-avatarUrl" 
+                  value="${escapeHtml(p.avatarUrl || '')}" 
+                  oninput="document.getElementById('avatar-preview-img').src = this.value"
+                  class="flex-1 px-3 py-2 text-sm rounded-xl border border-[#e2e8f0] focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
+                  placeholder="https://..."
+                />
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Fila 2: Gestor de Enlaces Interactivos -->
+          <div class="bg-white border border-[#e2e8f0] p-5 rounded-2xl space-y-4 shadow-2xs">
+            <div class="flex items-center justify-between border-b border-[#e2e8f0] pb-2.5">
+              <span class="text-xs uppercase font-bold tracking-wider text-slate-400">
+                2. Enlaces del Perfil (${(p.links || []).length})
+              </span>
+              <button 
+                type="button" 
+                onclick="addNewLinkToCurrentProfile()" 
+                class="px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold transition-colors flex items-center gap-1"
+              >
+                <span>+ Añadir Enlace</span>
+              </button>
+            </div>
+
+            <div id="editor-links-container" class="space-y-3">
+              ${(p.links || []).map((link, idx) => `
+                <div class="bg-[#f8fafc] border border-[#e2e8f0] p-3.5 rounded-xl space-y-2.5 relative group">
+                  <div class="flex items-center justify-between gap-2">
+                    <span class="text-xs font-bold text-slate-500 flex items-center gap-1">
+                      <span class="w-5 h-5 rounded-md bg-white border border-slate-200 flex items-center justify-center text-[10px] text-slate-700">
+                        ${idx + 1}
+                      </span>
+                      <span>Tarjeta de Enlace</span>
+                    </span>
+                    <div class="flex items-center gap-1">
+                      ${idx > 0 ? `
+                        <button type="button" onclick="moveLink(${idx}, -1)" title="Subir enlace" class="p-1 rounded text-slate-400 hover:text-slate-700 hover:bg-white text-xs">▲</button>
+                      ` : ''}
+                      ${idx < p.links.length - 1 ? `
+                        <button type="button" onclick="moveLink(${idx}, 1)" title="Bajar enlace" class="p-1 rounded text-slate-400 hover:text-slate-700 hover:bg-white text-xs">▼</button>
+                      ` : ''}
+                      <button type="button" onclick="deleteLink(${idx})" title="Eliminar enlace" class="p-1 text-slate-400 hover:text-rose-600 rounded hover:bg-rose-50 text-xs">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="3 6 5 6 21 6"></polyline>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div>
+                      <input 
+                        type="text" 
+                        data-link-idx="${idx}" 
+                        data-link-field="titulo" 
+                        value="${escapeHtml(link.titulo || '')}" 
+                        placeholder="Título del enlace" 
+                        class="w-full px-3 py-1.5 text-xs font-semibold rounded-lg border border-[#e2e8f0] bg-white focus:border-indigo-500 outline-none"
+                      />
+                    </div>
+                    <div>
+                      <input 
+                        type="text" 
+                        data-link-idx="${idx}" 
+                        data-link-field="descripcion" 
+                        value="${escapeHtml(link.descripcion || '')}" 
+                        placeholder="Descripción secundaria corta" 
+                        class="w-full px-3 py-1.5 text-xs text-slate-600 rounded-lg border border-[#e2e8f0] bg-white focus:border-indigo-500 outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-center">
+                    <div class="sm:col-span-7">
+                      <input 
+                        type="url" 
+                        data-link-idx="${idx}" 
+                        data-link-field="url" 
+                        value="${escapeHtml(link.url || '')}" 
+                        placeholder="https://tu-enlace.com" 
+                        class="w-full px-3 py-1.5 text-xs font-mono rounded-lg border border-[#e2e8f0] bg-white focus:border-indigo-500 outline-none"
+                      />
+                    </div>
+                    <div class="sm:col-span-3">
+                      <select 
+                        data-link-idx="${idx}" 
+                        data-link-field="icono" 
+                        class="w-full px-2 py-1.5 text-xs rounded-lg border border-[#e2e8f0] bg-white focus:border-indigo-500 outline-none"
+                      >
+                        ${AVAILABLE_ICONS.map(ic => `
+                          <option value="${ic}" ${link.icono === ic ? 'selected' : ''}>Icono: ${ic}</option>
+                        `).join('')}
+                      </select>
+                    </div>
+                    <div class="sm:col-span-2 flex items-center justify-end">
+                      <label class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 cursor-pointer">
+                        <input 
+                          type="checkbox" 
+                          data-link-idx="${idx}" 
+                          data-link-field="destacado" 
+                          ${link.destacado ? 'checked' : ''} 
+                          class="rounded text-indigo-600 focus:ring-indigo-500 w-3.5 h-3.5"
+                        />
+                        <span>Destacado</span>
+                      </label>
+                    </div>
+                  </div>
+
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- Fila 3: Redes Sociales (Pie de Perfil) -->
+          <div class="bg-white border border-[#e2e8f0] p-5 rounded-2xl space-y-4 shadow-2xs">
+            <div class="border-b border-[#e2e8f0] pb-2.5">
+              <span class="text-xs uppercase font-bold tracking-wider text-slate-400">
+                3. Iconos de Redes Sociales
+              </span>
+              <p class="text-xs text-slate-500 mt-0.5">Deja vacía la URL de cualquier red para ocultarla.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="editor-socials-container">
+              ${['github', 'linkedin', 'youtube', 'instagram', 'whatsapp', 'twitter', 'spotify', 'mail'].map(network => {
+                const current = (p.redes || []).find(r => r.red === network);
+                const val = current ? current.url : '';
+                return `
+                  <div class="flex items-center gap-2 bg-[#f8fafc] border border-[#e2e8f0] p-2 rounded-xl">
+                    <div class="w-7 h-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-600 shrink-0">
+                      ${getIconSvg(network, 'w-3.5 h-3.5')}
+                    </div>
+                    <input 
+                      type="text" 
+                      data-social-network="${network}" 
+                      value="${escapeHtml(val)}" 
+                      placeholder="URL de ${network}" 
+                      class="w-full text-xs bg-transparent outline-none text-slate-700 font-mono"
+                    />
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+
+          <!-- Opción de Eliminar Perfil si hay más de 1 -->
+          ${Object.keys(localEditingProfiles).length > 1 ? `
+            <div class="pt-2 flex justify-end">
+              <button 
+                type="button" 
+                onclick="deleteCurrentEditingProfile()" 
+                class="text-xs text-rose-600 hover:text-rose-800 font-semibold hover:underline"
+              >
+                Eliminar este perfil ("${escapeHtml(p.id)}")
+              </button>
+            </div>
+          ` : ''}
+
+        </div>
+      `;
+    }
+
+    function saveCurrentFormValuesToLocalEditing() {
+      if (!localEditingProfiles || !editingProfileSlug) return;
+      const p = localEditingProfiles[editingProfileSlug];
+      if (!p) return;
+
+      const nombreEl = document.getElementById('field-nombre');
+      const tituloEl = document.getElementById('field-titulo');
+      const bioEl = document.getElementById('field-bio');
+      const badgeEl = document.getElementById('field-badge');
+      const avatarEl = document.getElementById('field-avatarUrl');
+      const themeEl = document.getElementById('field-theme');
+
+      if (nombreEl) p.nombre = nombreEl.value.trim();
+      if (tituloEl) p.titulo = tituloEl.value.trim();
+      if (bioEl) p.bio = bioEl.value.trim();
+      if (badgeEl) p.badge = badgeEl.value.trim();
+      if (avatarEl) p.avatarUrl = avatarEl.value.trim();
+
+      if (themeEl) {
+        const themeKey = themeEl.value;
+        const selectedTheme = THEMES[themeKey] || THEMES.indigo;
+        p.tema = {
+          ...selectedTheme,
+          tag: themeKey
+        };
+      }
+
+      // Guardar enlaces
+      const linkInputs = document.querySelectorAll('[data-link-idx]');
+      const linksMap = {};
+      linkInputs.forEach(input => {
+        const idx = input.getAttribute('data-link-idx');
+        const field = input.getAttribute('data-link-field');
+        if (!linksMap[idx]) {
+          linksMap[idx] = { titulo: '', descripcion: '', url: '', icono: 'globe', destacado: false };
+        }
+        if (field === 'destacado') {
+          linksMap[idx].destacado = input.checked;
+        } else {
+          linksMap[idx][field] = input.value.trim();
+        }
+      });
+      p.links = Object.values(linksMap);
+
+      // Guardar redes sociales
+      const socialInputs = document.querySelectorAll('[data-social-network]');
+      const newRedes = [];
+      socialInputs.forEach(input => {
+        const net = input.getAttribute('data-social-network');
+        const urlVal = input.value.trim();
+        if (urlVal) {
+          newRedes.push({
+            red: net,
+            url: urlVal,
+            label: net.charAt(0).toUpperCase() + net.slice(1)
+          });
+        }
+      });
+      p.redes = newRedes;
+    }
+
+    function addNewLinkToCurrentProfile() {
+      saveCurrentFormValuesToLocalEditing();
+      const p = localEditingProfiles[editingProfileSlug];
+      if (!p) return;
+      if (!p.links) p.links = [];
+      p.links.push({
+        titulo: "Nuevo Enlace",
+        descripcion: "Descripción breve",
+        url: "https://",
+        icono: "globe",
+        destacado: false
+      });
+      renderEditorProfileForm();
+    }
+
+    function moveLink(idx, delta) {
+      saveCurrentFormValuesToLocalEditing();
+      const p = localEditingProfiles[editingProfileSlug];
+      if (!p || !p.links) return;
+      const targetIdx = idx + delta;
+      if (targetIdx < 0 || targetIdx >= p.links.length) return;
+      const temp = p.links[idx];
+      p.links[idx] = p.links[targetIdx];
+      p.links[targetIdx] = temp;
+      renderEditorProfileForm();
+    }
+
+    function deleteLink(idx) {
+      saveCurrentFormValuesToLocalEditing();
+      const p = localEditingProfiles[editingProfileSlug];
+      if (!p || !p.links) return;
+      p.links.splice(idx, 1);
+      renderEditorProfileForm();
+    }
+
+    function promptCreateNewProfile() {
+      saveCurrentFormValuesToLocalEditing();
+      const slugInput = prompt("Introduce el identificador (slug) para el nuevo perfil (ej: 'musica', 'tienda', 'contacto'):");
+      if (!slugInput) return;
+      const cleanSlug = slugInput.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
+      if (!cleanSlug) {
+        alert("El slug debe contener únicamente letras y números.");
+        return;
+      }
+      if (localEditingProfiles[cleanSlug]) {
+        alert("Ya existe un perfil con ese nombre.");
+        editingProfileSlug = cleanSlug;
+        renderEditorTabs();
+        renderEditorProfileForm();
+        return;
+      }
+
+      localEditingProfiles[cleanSlug] = {
+        id: cleanSlug,
+        nombre: "Nuevo Perfil",
+        titulo: "Título o Especialidad",
+        bio: "Descripción del perfil de enlaces.",
+        avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",
+        badge: "✨ Nuevo",
+        tema: { ...THEMES.indigo, tag: 'indigo' },
+        links: [
+          {
+            titulo: "Página Web Principal",
+            descripcion: "Visita mi sitio oficial",
+            url: "https://example.com",
+            icono: "globe",
+            destacado: true
+          }
+        ],
+        redes: [
+          { red: "instagram", url: "https://instagram.com", label: "Instagram" },
+          { red: "mail", url: "mailto:info@example.com", label: "Correo" }
+        ]
+      };
+
+      editingProfileSlug = cleanSlug;
+      renderEditorTabs();
+      renderEditorProfileForm();
+      showToast(`¡Perfil "?p=${cleanSlug}" creado en el editor!`);
+    }
+
+    function promptCreateProfileWithSlug(slug) {
+      openEditorModal();
+      if (slug) {
+        const clean = slug.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
+        if (clean && !localEditingProfiles[clean]) {
+          localEditingProfiles[clean] = {
+            id: clean,
+            nombre: clean.charAt(0).toUpperCase() + clean.slice(1),
+            titulo: "Perfil Personal",
+            bio: "Bienvenido a mi espacio de enlaces.",
+            avatarUrl: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400&auto=format&fit=crop&q=80",
+            badge: "✨ Activo",
+            tema: { ...THEMES.indigo, tag: 'indigo' },
+            links: [
+              { titulo: "Sitio Web", descripcion: "Enlace principal", url: "https://example.com", icono: "globe", destacado: true }
+            ],
+            redes: []
+          };
+          editingProfileSlug = clean;
+          renderEditorTabs();
+          renderEditorProfileForm();
+        }
+      }
+    }
+
+    function deleteCurrentEditingProfile() {
+      if (!confirm(`¿Seguro que deseas eliminar el perfil "?p=${editingProfileSlug}"?`)) return;
+      delete localEditingProfiles[editingProfileSlug];
+      const remaining = Object.keys(localEditingProfiles);
+      editingProfileSlug = remaining[0];
+      renderEditorTabs();
+      renderEditorProfileForm();
+      showToast("Perfil eliminado del editor");
+    }
+
+    function saveEditorChangesAndPreview() {
+      saveCurrentFormValuesToLocalEditing();
+      saveProfilesData(localEditingProfiles);
+      closeEditorModal();
+      showToast("¡Tarjetas y perfiles guardados con éxito!");
+      if (editingProfileSlug) {
+        navigateToProfile(editingProfileSlug);
+      } else {
+        renderApp();
+      }
+    }
+
+    function resetEditorProfiles() {
+      if (!confirm("¿Deseas restablecer todos los perfiles a los valores iniciales de fábrica? Esto borrará tus cambios locales.")) return;
+      localStorage.removeItem(STORAGE_KEY);
+      localEditingProfiles = JSON.parse(JSON.stringify(defaultProfilesData));
+      editingProfileSlug = Object.keys(localEditingProfiles)[0];
+      renderEditorTabs();
+      renderEditorProfileForm();
+      renderApp();
+      showToast("Perfiles restablecidos a valores originales");
+    }
+
+    function copyProfilesJson() {
+      saveCurrentFormValuesToLocalEditing();
+      const jsonStr = JSON.stringify(localEditingProfiles, null, 2);
+      copyToClipboard(jsonStr);
+      showToast("¡Datos JSON copiados al portapapeles!");
+    }
+
+    /**
+     * =========================================================================
+     * 11. EXPORTADOR PARA GITHUB PAGES (Descarga index.html Listo)
+     * =========================================================================
+     * Genera un archivo HTML autosuficiente donde defaultProfilesData es
+     * reemplazado por la configuración actual del usuario.
+     */
+    function downloadUpdatedIndexHtml() {
+      saveCurrentFormValuesToLocalEditing();
+      
+      // Obtener el HTML completo actual del documento
+      let fullHtml = document.documentElement.outerHTML;
+
+      // Reemplazar la definición de defaultProfilesData con los datos actuales serializados
+      const currentJson = JSON.stringify(localEditingProfiles, null, 2);
+      const regex = /const\s+defaultProfilesData\s*=\s*\{[\s\S]*?\n\s*\};/;
+      const replacement = `const defaultProfilesData = ${currentJson};`;
+
+      if (regex.test(fullHtml)) {
+        fullHtml = fullHtml.replace(regex, replacement);
+      }
+
+      const blob = new Blob(["<!DOCTYPE html>\n" + fullHtml], { type: "text/html;charset=utf-8" });
+      const downloadUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = downloadUrl;
+      a.download = "index.html";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(downloadUrl);
+
+      showToast("¡Archivo index.html descargado! Listo para GitHub Pages.");
+    }
+
     function escapeHtml(str) {
-      return str
+      if (!str) return '';
+      return String(str)
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
@@ -934,6 +1796,7 @@
         .replace(/'/g, "&#039;");
     }
 
+    // Inicializar aplicación al cargar el DOM
     document.addEventListener('DOMContentLoaded', renderApp);
     if (document.readyState === 'interactive' || document.readyState === 'complete') {
       renderApp();
